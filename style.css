@@ -508,10 +508,12 @@ nav {
     border-radius: 12px;
     font-size: 0.7rem;
     font-weight: 600;
-    background: #E8E4FF;
-    color: var(--primary);
     margin-left: 6px;
 }
+
+.word-category.cat-nouveaux { background: #DFE6E9; color: #636E72; }
+.word-category.cat-a-revoir { background: #FADBD8; color: #E74C3C; }
+.word-category.cat-maitrises { background: #D5F5E3; color: #27AE60; }
 
 /* Translate button & input layout */
 .input-with-action {

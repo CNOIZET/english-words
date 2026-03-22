@@ -26,13 +26,13 @@ function recordReview() {
     saveHistory(history);
 }
 
-function createWord(en, fr, example = '', category = '') {
+function createWord(en, fr, example = '', category = 'Nouveaux') {
     return {
         id: Date.now() + Math.random(),
         en: en.trim(),
         fr: fr.trim(),
         example: example.trim(),
-        category: category.trim(),
+        category: category || 'Nouveaux',
         level: 0,        // 0=new, 1=learning, 2=learned, 3=mastered
         interval: 0,     // days until next review
         easeFactor: 2.5,
@@ -78,10 +78,12 @@ function updateSRS(word, rating) {
     if (rating === 1) {
         word.interval = 0;
         word.level = 1;
+        word.category = 'A revoir';
     } else if (rating === 2) {
         word.interval = Math.max(1, word.interval * 1.2);
         word.easeFactor = Math.max(1.3, word.easeFactor - 0.15);
         word.level = Math.min(word.level, 2);
+        word.category = 'A revoir';
     } else if (rating === 3) {
         if (word.interval === 0) {
             word.interval = 1;
@@ -92,6 +94,7 @@ function updateSRS(word, rating) {
         }
         word.easeFactor = Math.max(1.3, word.easeFactor + 0.05);
         word.level = word.reviewCount >= 3 ? 2 : 1;
+        word.category = 'Maitrises';
     } else if (rating === 4) {
         if (word.interval === 0) {
             word.interval = 3;
@@ -100,6 +103,7 @@ function updateSRS(word, rating) {
         }
         word.easeFactor += 0.15;
         word.level = word.reviewCount >= 2 ? 3 : 2;
+        word.category = 'Maitrises';
     }
 
     word.nextReview = Date.now() + word.interval * 24 * 60 * 60 * 1000;
@@ -116,6 +120,12 @@ function getLevelLabel(level) {
 
 function getLevelClass(level) {
     return ['level-new', 'level-learning', 'level-learned', 'level-mastered'][level] || 'level-new';
+}
+
+function getCategoryClass(category) {
+    if (category === 'A revoir') return 'cat-a-revoir';
+    if (category === 'Maitrises') return 'cat-maitrises';
+    return 'cat-nouveaux';
 }
 
 // ==================== NAVIGATION ====================
@@ -542,7 +552,7 @@ function renderWordsList() {
             <div class="word-info">
                 <span class="word-en">${escapeHtml(w.en)}</span>
                 <span class="word-level ${getLevelClass(w.level)}">${getLevelLabel(w.level)}</span>
-                ${w.category ? `<span class="word-category">${escapeHtml(w.category)}</span>` : ''}
+                <span class="word-category ${getCategoryClass(w.category)}">${escapeHtml(w.category || 'Nouveaux')}</span>
                 <br><span class="word-fr">${escapeHtml(w.fr)}</span>
             </div>
             <div class="word-actions">
