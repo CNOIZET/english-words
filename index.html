@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Words - Flashcards</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6C5CE7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="English Words">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>English Words</h1>
+            <nav>
+                <button class="nav-btn active" data-view="flashcard">Flashcards</button>
+                <button class="nav-btn" data-view="quiz">Quiz</button>
+                <button class="nav-btn" data-view="words">Mes mots</button>
+                <button class="nav-btn" data-view="stats">Stats</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- FLASHCARD VIEW -->
+            <section id="flashcard-view" class="view active">
+                <div class="flashcard-controls">
+                    <select id="flashcard-direction">
+                        <option value="en-fr">Anglais → Francais</option>
+                        <option value="fr-en">Francais → Anglais</option>
+                    </select>
+                    <select id="flashcard-filter">
+                        <option value="all">Tous les mots</option>
+                        <option value="due">A reviser</option>
+                        <option value="new">Nouveaux</option>
+                        <option value="hard">Difficiles</option>
+                    </select>
+                    <select id="flashcard-category">
+                        <option value="all">Toutes categories</option>
+                        <option value="Nouveaux">Nouveaux</option>
+                        <option value="A reviser">A reviser</option>
+                        <option value="Difficiles">Difficiles</option>
+                    </select>
+                </div>
+                <div id="flashcard-empty" class="empty-state" style="display:none;">
+                    <p>Aucun mot a reviser ! Ajoutez des mots ou changez le filtre.</p>
+                </div>
+                <div id="flashcard-container" style="display:none;">
+                    <div class="progress-bar">
+                        <div id="flashcard-progress" class="progress-fill"></div>
+                    </div>
+                    <p id="flashcard-counter" class="counter"></p>
+                    <div class="swipe-zone">
+                        <div class="swipe-indicator swipe-indicator-left">✗</div>
+                        <div class="swipe-indicator swipe-indicator-right">✓</div>
+                        <div id="flashcard" class="card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <span id="card-front-text"></span>
+                                </div>
+                                <div class="card-back">
+                                    <span id="card-back-text"></span>
+                                    <span id="card-example" class="example"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="hint">Cliquez pour retourner · Swipez pour noter</p>
+                    <div class="swipe-legend">
+                        <span class="swipe-legend-left">← A revoir</span>
+                        <span class="swipe-legend-right">OK →</span>
+                    </div>
+                    <div class="rating-buttons" id="rating-buttons" style="display:none;">
+                        <p>Ou notez plus precisement :</p>
+                        <button class="rate-btn rate-again" data-rating="1">A revoir</button>
+                        <button class="rate-btn rate-hard" data-rating="2">Difficile</button>
+                        <button class="rate-btn rate-good" data-rating="3">Bien</button>
+                        <button class="rate-btn rate-easy" data-rating="4">Facile</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QUIZ VIEW -->
+            <section id="quiz-view" class="view">
+                <div class="quiz-setup" id="quiz-setup">
+                    <h2>Configurer le quiz</h2>
+                    <label>Nombre de questions :
+                        <select id="quiz-count">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="0">Tous</option>
+                        </select>
+                    </label>
+                    <label>Direction :
+                        <select id="quiz-direction">
+                            <option value="en-fr">Anglais → Francais</option>
+                            <option value="fr-en">Francais → Anglais</option>
+                            <option value="mix">Mixte</option>
+                        </select>
+                    </label>
+                    <label>Type :
+                        <select id="quiz-type">
+                            <option value="mcq">QCM</option>
+                            <option value="write">Ecrire la reponse</option>
+                        </select>
+                    </label>
+                    <button id="start-quiz" class="btn-primary">Commencer</button>
+                </div>
+                <div id="quiz-active" style="display:none;">
+                    <div class="progress-bar">
+                        <div id="quiz-progress" class="progress-fill"></div>
+                    </div>
+                    <p id="quiz-counter" class="counter"></p>
+                    <div id="quiz-question" class="quiz-question"></div>
+                    <div id="quiz-options" class="quiz-options"></div>
+                    <div id="quiz-write" class="quiz-write" style="display:none;">
+                        <input type="text" id="quiz-input" placeholder="Votre reponse..." autocomplete="off">
+                        <button id="quiz-submit" class="btn-primary">Valider</button>
+                    </div>
+                    <div id="quiz-feedback" class="quiz-feedback" style="display:none;"></div>
+                    <button id="quiz-next" class="btn-primary" style="display:none;">Suivant</button>
+                </div>
+                <div id="quiz-results" style="display:none;">
+                    <h2>Resultats</h2>
+                    <div id="quiz-score" class="quiz-score"></div>
+                    <div id="quiz-review"></div>
+                    <button id="quiz-restart" class="btn-primary">Recommencer</button>
+                </div>
+            </section>
+
+            <!-- WORDS VIEW -->
+            <section id="words-view" class="view">
+                <div class="words-header">
+                    <h2>Mes mots (<span id="word-count">0</span>)</h2>
+                    <div class="words-actions">
+                        <button id="add-word-btn" class="btn-primary">+ Ajouter</button>
+                        <button id="import-btn" class="btn-secondary">Importer</button>
+                        <button id="export-btn" class="btn-secondary">Exporter</button>
+                    </div>
+                </div>
+                <div class="search-row">
+                    <input type="text" id="search-words" placeholder="Rechercher..." class="search-input">
+                    <select id="filter-category" class="filter-category">
+                        <option value="all">Toutes categories</option>
+                        <option value="Nouveaux">Nouveaux</option>
+                        <option value="A reviser">A reviser</option>
+                        <option value="Difficiles">Difficiles</option>
+                    </select>
+                </div>
+                <div id="words-list" class="words-list"></div>
+
+                <!-- Add/Edit Modal -->
+                <div id="word-modal" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <h3 id="modal-title">Ajouter un mot</h3>
+                        <label>Anglais :
+                            <div class="input-with-action">
+                                <input type="text" id="input-english" placeholder="hello">
+                                <button type="button" id="btn-translate" class="btn-translate" title="Traduire automatiquement">Traduire</button>
+                            </div>
+                        </label>
+                        <label>Francais :
+                            <div class="translate-wrapper">
+                                <input type="text" id="input-french" placeholder="bonjour">
+                                <span id="translate-status" class="translate-status"></span>
+                            </div>
+                        </label>
+                        <label>Categorie :
+                            <select id="input-category">
+                                <option value="Nouveaux" selected>Nouveaux</option>
+                                <option value="A reviser">A reviser</option>
+                                <option value="Difficiles">Difficiles</option>
+                            </select>
+                        </label>
+                        <label>Exemple (optionnel) : <input type="text" id="input-example" placeholder="Hello, how are you?"></label>
+                        <div class="modal-actions">
+                            <button id="save-word" class="btn-primary">Sauvegarder</button>
+                            <button id="cancel-word" class="btn-secondary">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import Modal -->
+                <div id="import-modal" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <h3>Importer des mots</h3>
+                        <p>Format : un mot par ligne, separes par virgule ou point-virgule :<br><em>anglais ; francais ; categorie ; exemple</em></p>
+                        <textarea id="import-text" rows="10" placeholder="hello; bonjour; Quotidien; Hello, how are you?&#10;goodbye; au revoir; Quotidien&#10;deadline; date limite; Business"></textarea>
+                        <div class="modal-actions">
+                            <button id="do-import" class="btn-primary">Importer</button>
+                            <button id="cancel-import" class="btn-secondary">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STATS VIEW -->
+            <section id="stats-view" class="view">
+                <h2>Statistiques</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-total">0</div>
+                        <div class="stat-label">Mots au total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-learned">0</div>
+                        <div class="stat-label">Mots appris</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-due">0</div>
+                        <div class="stat-label">A reviser</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-streak">0</div>
+                        <div class="stat-label">Jours consecutifs</div>
+                    </div>
+                </div>
+                <h3>Repartition</h3>
+                <div id="stats-distribution" class="stats-distribution"></div>
+                <h3>Historique des revisions</h3>
+                <div id="stats-history" class="stats-history"></div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
